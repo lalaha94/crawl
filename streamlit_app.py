@@ -3,12 +3,40 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from io import BytesIO
+import stripe
+
+# Stripe API-nøkkel (Bytt ut med din egen fra Stripe Dashboard)
+stripe.api_key = "pk_live_51QvGVBGVwz06fpPKgkaatVEgiwaSTUQgz8cq4lEYQLa5LM8HBnurrYnOQzlXgVd7ZvKVJDMPOb3jhYZNSecUbaGQ00ho4haEFE"
 
 # Brukerdatabase (enkelt passord-system for testing)
 USERS = {
     "admin": "1234",
     "user": "passord"
 }
+
+# Funksjon for å opprette Stripe Checkout-sesjon
+def create_checkout_session():
+    session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=[
+            {
+                'price_data': {
+                    'currency': 'nok',
+                    'product_data': {
+                        'name': 'Telefonnummer-søker abonnement',
+                    },
+                    'unit_amount': 50000,  # 500 NOK
+                },
+                'quantity': 1,
+            }
+        ],
+        mode='payment',
+        success_url='http://localhost:8501',
+        cancel_url='http://localhost:8501',
+    )
+    return session.url
+
+# Innlogging
 
 def login():
     st.title("Logg inn for å bruke tjenesten")
@@ -18,7 +46,7 @@ def login():
         if username in USERS and USERS[username] == password:
             st.session_state["logged_in"] = True
             st.success(f"Velkommen, {username}!")
-            st.rerun()  # Oppdater siden etter vellykket innlogging
+            st.rerun()
         else:
             st.error("Feil brukernavn eller passord.")
 
@@ -60,16 +88,22 @@ def find_phone_number(person):
 # Funksjon for å korrigere telefonnumre
 def korriger_telefonnummer(telefon):
     if isinstance(telefon, str):
-        # Fjern mellomrom
         telefon = telefon.replace(" ", "")
-        # Hvis telefonnummeret har 9 sifre, fjern det første sifferet
         if telefon.isdigit() and len(telefon) == 9:
             return telefon[1:]
     return telefon
 
-# Sjekk om brukeren er logget inn
+# Sjekk om brukeren er logget inn og betalt
 if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
     login()
+
+elif "paid" not in st.session_state or not st.session_state["paid"]:
+    st.title("Fullfør betaling for å bruke tjenesten")
+    if st.button("Betal med Stripe (500 NOK)"):
+        checkout_url = create_checkout_session()
+        st.session_state["paid"] = True
+        st.success("Betaling fullført. Du har nå tilgang til tjenesten.")
+        st.markdown(f"[Fullfør betaling her]({checkout_url})", unsafe_allow_html=True)
 else:
     # Streamlit App
     st.title("Telefonnummer-søker fra Excel")
