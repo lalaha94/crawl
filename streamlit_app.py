@@ -35,9 +35,19 @@ def find_phone_number(person):
         return _1881(person)
     return phone_number
 
+# Funksjon for å korrigere telefonnumre
+def korriger_telefonnummer(telefon):
+    if isinstance(telefon, str):
+        # Fjern mellomrom
+        telefon = telefon.replace(" ", "")
+        # Hvis telefonnummeret har 9 sifre, fjern det første sifferet
+        if telefon.isdigit() and len(telefon) == 9:
+            return telefon[1:]
+    return telefon
+
 # Streamlit App
-st.title("Telefonnummer-søker fra Excel")
-st.write("Last opp en Excel-fil for å hente telefonnummer automatisk fra Gule Sider og 1881.")
+st.title("Søk på telefonnummer")
+st.write("Last opp en Excel-fil for å hente og korrigere telefonnummer automatisk fra Gule Sider og 1881. Last opp en fil med max 500 søk per gang. Må inneholde kolonnene Eier Fornavn, Eier Etternavn, og Eier Postnummer ")
 
 uploaded_file = st.file_uploader("Last opp Excel-fil", type=["xlsx"])
 
@@ -66,7 +76,10 @@ if uploaded_file:
             phone_numbers.append(phone_number)
         df['Telefon'] = phone_numbers
 
-    st.success('Søket er ferdig!')
+    # Korriger telefonnumrene
+    df['Telefon'] = df['Telefon'].apply(korriger_telefonnummer)
+
+    st.success('Søket og korrigeringen er ferdig!')
     st.write("## Oppdatert data:")
     st.dataframe(df)
 
@@ -78,7 +91,7 @@ if uploaded_file:
     st.download_button(
         label="Last ned oppdatert Excel-fil",
         data=output,
-        file_name="leads_med_telefonnummer.xlsx",
+        file_name="leads_med_korrigerte_telefonnumre.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 else:
