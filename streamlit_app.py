@@ -71,10 +71,10 @@ if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
     login()
 else:
     # Streamlit App
-st.title("Søk på telefonnummer")
-st.write("Last opp en Excel-fil for å hente og korrigere telefonnummer automatisk fra Gule Sider og 1881. Last opp en fil med max 500 søk per gang. Må inneholde kolonnene Eier Fornavn, Eier Etternavn, og Eier Postnummer ")
+    st.title("Telefonnummer-søker fra Excel")
+    st.write("Last opp en Excel-fil for å hente og korrigere telefonnummer automatisk fra Gule Sider og 1881.")
 
-uploaded_file = st.file_uploader("Last opp Excel-fil", type=["xlsx"])
+    uploaded_file = st.file_uploader("Last opp Excel-fil", type=["xlsx"])
 
     if uploaded_file:
         df = pd.read_excel(uploaded_file, sheet_name=0)
