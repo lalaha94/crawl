@@ -18,6 +18,7 @@ def login():
         if username in USERS and USERS[username] == password:
             st.session_state["logged_in"] = True
             st.success(f"Velkommen, {username}!")
+            st.experimental_rerun()  # Oppdater siden etter vellykket innlogging
         else:
             st.error("Feil brukernavn eller passord.")
 
