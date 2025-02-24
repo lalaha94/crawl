@@ -5,4 +5,5 @@ beautifulsoup4
 pyrebase4
 google-cloud-storage
 setuptools
+openpyxl
 
