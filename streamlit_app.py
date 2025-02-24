@@ -15,13 +15,6 @@ except ModuleNotFoundError as e:
 # Firebase-konfigurasjon hentet fra Streamlit Secrets
 firebase_api_key = st.secrets.get("FIREBASE_API_KEY")
 
-# Test: Sjekk om miljøvariabler lastes riktig
-if firebase_api_key:
-    st.success("API-nøkkelen ble lastet inn riktig fra Streamlit Secrets.")
-else:
-    st.error("API-nøkkelen ble ikke lastet inn. Sjekk Streamlit Secrets og prøv igjen.")
-    st.stop()
-
 firebaseConfig = {
     "apiKey": firebase_api_key,
     "authDomain": st.secrets.get("FIREBASE_AUTH_DOMAIN"),
@@ -99,8 +92,8 @@ if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
     google_login()
 else:
     # Streamlit App
-    st.title("Telefonnummer-søker fra Excel")
-    st.write("Last opp en Excel-fil for å hente og korrigere telefonnummer automatisk fra Gule Sider og 1881.")
+    st.title("Telefonnummer-søker")
+    st.write("Last opp en Excel-fil for å hente telefonnummer automatisk fra Gule Sider og 1881, må inneholde Eier Fornavn, Eier Etternavn, Eier Postnummer.")
 
     uploaded_file = st.file_uploader("Last opp Excel-fil", type=["xlsx"])
 
