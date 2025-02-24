@@ -3,52 +3,38 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from io import BytesIO
-import stripe
+import pyrebase
+import os
 
-# Stripe API-nøkkel (Bytt ut med din egen fra Stripe Dashboard)
-stripe.api_key = "pk_live_51QvGVBGVwz06fpPKgkaatVEgiwaSTUQgz8cq4lEYQLa5LM8HBnurrYnOQzlXgVd7ZvKVJDMPOb3jhYZNSecUbaGQ00ho4haEFE"
-
-# Brukerdatabase (enkelt passord-system for testing)
-USERS = {
-    "admin": "1234",
-    "user": "passord"
+# Firebase-konfigurasjon hentet fra GitHub Secrets (miljøvariabler)
+firebaseConfig = {
+    "apiKey": os.getenv("FIREBASE_API_KEY"),
+    "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
+    "databaseURL": os.getenv("FIREBASE_DATABASE_URL"),
+    "projectId": os.getenv("FIREBASE_PROJECT_ID"),
+    "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
+    "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
+    "appId": os.getenv("FIREBASE_APP_ID"),
+    "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID")
 }
 
-# Funksjon for å opprette Stripe Checkout-sesjon
-def create_checkout_session():
-    session = stripe.checkout.Session.create(
-        payment_method_types=['card'],
-        line_items=[
-            {
-                'price_data': {
-                    'currency': 'nok',
-                    'product_data': {
-                        'name': 'Telefonnummer-søker abonnement',
-                    },
-                    'unit_amount': 50000,  # 500 NOK
-                },
-                'quantity': 1,
-            }
-        ],
-        mode='payment',
-        success_url='http://localhost:8501',
-        cancel_url='http://localhost:8501',
-    )
-    return session.url
+# Initialiser Firebase
+firebase = pyrebase.initialize_app(firebaseConfig)
+auth = firebase.auth()
 
-# Innlogging
-
-def login():
-    st.title("Logg inn for å bruke tjenesten")
-    username = st.text_input("Brukernavn:")
+# Funksjon for Google-innlogging
+def google_login():
+    st.title("Logg inn med Google for å bruke tjenesten")
+    email = st.text_input("E-post:")
     password = st.text_input("Passord:", type="password")
     if st.button("Logg inn"):
-        if username in USERS and USERS[username] == password:
+        try:
+            user = auth.sign_in_with_email_and_password(email, password)
             st.session_state["logged_in"] = True
-            st.success(f"Velkommen, {username}!")
+            st.success(f"Velkommen, {email}!")
             st.rerun()
-        else:
-            st.error("Feil brukernavn eller passord.")
+        except:
+            st.error("Innlogging mislyktes. Sjekk e-post og passord.")
 
 # Funksjon for å lage søketekst
 def query(person):
@@ -93,17 +79,9 @@ def korriger_telefonnummer(telefon):
             return telefon[1:]
     return telefon
 
-# Sjekk om brukeren er logget inn og betalt
+# Sjekk om brukeren er logget inn
 if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
-    login()
-
-elif "paid" not in st.session_state or not st.session_state["paid"]:
-    st.title("Fullfør betaling for å bruke tjenesten")
-    if st.button("Betal med Stripe (500 NOK)"):
-        checkout_url = create_checkout_session()
-        st.session_state["paid"] = True
-        st.success("Betaling fullført. Du har nå tilgang til tjenesten.")
-        st.markdown(f"[Fullfør betaling her]({checkout_url})", unsafe_allow_html=True)
+    google_login()
 else:
     # Streamlit App
     st.title("Telefonnummer-søker fra Excel")
