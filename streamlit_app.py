@@ -15,6 +15,13 @@ except ModuleNotFoundError as e:
 # Firebase-konfigurasjon hentet fra Streamlit Secrets
 firebase_api_key = st.secrets.get("FIREBASE_API_KEY")
 
+# Test: Sjekk om miljøvariabler lastes riktig
+if firebase_api_key:
+    st.success("API-nøkkelen ble lastet inn riktig fra Streamlit Secrets.")
+else:
+    st.error("API-nøkkelen ble ikke lastet inn. Sjekk Streamlit Secrets og prøv igjen.")
+    st.stop()
+
 firebaseConfig = {
     "apiKey": firebase_api_key,
     "authDomain": st.secrets.get("FIREBASE_AUTH_DOMAIN"),
@@ -32,7 +39,7 @@ auth = firebase.auth()
 
 # Funksjon for Google-innlogging
 def google_login():
-    st.title("Logg inn for å bruke tjenesten")
+    st.title("Logg inn med Google for å bruke tjenesten")
     email = st.text_input("E-post:")
     password = st.text_input("Passord:", type="password")
     if st.button("Logg inn"):
@@ -93,12 +100,12 @@ if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
 else:
     # Streamlit App
     st.title("Telefonnummer-søker")
-    st.write("Last opp en Excel-fil for å hente telefonnummer automatisk fra Gule Sider og 1881, må inneholde Eier Fornavn, Eier Etternavn, Eier Postnummer, maks 400 søk om gangen.")
+    st.write("Last opp en Excel-fil for å hente telefonnummer automatisk fra Gule Sider og 1881. Filen må inneholde kolonnene: Eier Fornavn, Eier Etternavn, Eier Postnummer. Maks 400 søk om gangen.")
 
     uploaded_file = st.file_uploader("Last opp Excel-fil", type=["xlsx"])
 
     if uploaded_file:
-        df = pd.read_excel(uploaded_file, sheet_name=0)
+        df = pd.read_excel(uploaded_file, sheet_name=0, engine='openpyxl')
         st.write("## Data forhåndsvisning:")
         st.dataframe(df.head())
 
@@ -107,6 +114,11 @@ else:
 
         # Rens postnummer
         df['Eier Postnummer'] = df['Eier Postnummer'].apply(lambda x: str(int(float(x))) if '.' in str(x) else str(x))
+
+        # Begrens antall søk til maks 400
+        if len(df) > 400:
+            df = df.head(400)
+            st.warning("Maksimalt 400 søk tillatt. De første 400 oppføringene er valgt.")
 
         # Lag søketekst
         df['søk'] = df[['Eier Fornavn', 'Eier Etternavn', 'Eier Postnummer']].apply(query, axis=1)
