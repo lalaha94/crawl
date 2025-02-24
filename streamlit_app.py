@@ -15,12 +15,7 @@ except ModuleNotFoundError as e:
 # Firebase-konfigurasjon hentet fra Streamlit Secrets
 firebase_api_key = st.secrets.get("FIREBASE_API_KEY")
 
-# Test: Sjekk om miljøvariabler lastes riktig
-if firebase_api_key:
-    st.success("API-nøkkelen ble lastet inn riktig fra Streamlit Secrets.")
-else:
-    st.error("API-nøkkelen ble ikke lastet inn. Sjekk Streamlit Secrets og prøv igjen.")
-    st.stop()
+
 
 firebaseConfig = {
     "apiKey": firebase_api_key,
