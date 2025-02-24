@@ -2,7 +2,7 @@ streamlit
 pandas
 requests
 beautifulsoup4
-openpyxl
-stripe
-python-dotenv
 pyrebase4
+google-cloud-storage
+setuptools
+
