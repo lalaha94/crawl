@@ -32,7 +32,7 @@ auth = firebase.auth()
 
 # Funksjon for Google-innlogging
 def google_login():
-    st.title("Logg inn med Google for å bruke tjenesten")
+    st.title("Logg inn for å bruke tjenesten")
     email = st.text_input("E-post:")
     password = st.text_input("Passord:", type="password")
     if st.button("Logg inn"):
