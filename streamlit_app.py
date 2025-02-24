@@ -14,8 +14,17 @@ except ModuleNotFoundError as e:
     raise e
 
 # Firebase-konfigurasjon hentet fra GitHub Secrets (miljøvariabler)
+firebase_api_key = os.getenv("FIREBASE_API_KEY")
+
+# Test: Sjekk om miljøvariabler lastes riktig
+if firebase_api_key:
+    st.success("API-nøkkelen ble lastet inn riktig.")
+else:
+    st.error("API-nøkkelen ble ikke lastet inn. Sjekk GitHub Secrets og prøv igjen.")
+    st.stop()
+
 firebaseConfig = {
-    "apiKey": os.getenv("FIREBASE_API_KEY"),
+    "apiKey": firebase_api_key,
     "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
     "databaseURL": os.getenv("FIREBASE_DATABASE_URL"),
     "projectId": os.getenv("FIREBASE_PROJECT_ID"),
