@@ -3,8 +3,15 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from io import BytesIO
-import pyrebase
 import os
+
+# Forsøk å importere pyrebase med Google Cloud Storage-støtte
+try:
+    import pyrebase
+    from google.cloud import storage
+except ModuleNotFoundError as e:
+    st.error(f"Mangler nødvendig avhengighet: {e}. Prøv å oppdatere requirements.txt.")
+    raise e
 
 # Firebase-konfigurasjon hentet fra GitHub Secrets (miljøvariabler)
 firebaseConfig = {
@@ -33,8 +40,8 @@ def google_login():
             st.session_state["logged_in"] = True
             st.success(f"Velkommen, {email}!")
             st.rerun()
-        except:
-            st.error("Innlogging mislyktes. Sjekk e-post og passord.")
+        except Exception as e:
+            st.error(f"Innlogging mislyktes. Feil: {e}")
 
 # Funksjon for å lage søketekst
 def query(person):
