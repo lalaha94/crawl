@@ -3,7 +3,6 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from io import BytesIO
-import os
 
 # Forsøk å importere pyrebase med Google Cloud Storage-støtte
 try:
@@ -13,25 +12,25 @@ except ModuleNotFoundError as e:
     st.error(f"Mangler nødvendig avhengighet: {e}. Prøv å oppdatere requirements.txt.")
     raise e
 
-# Firebase-konfigurasjon hentet fra GitHub Secrets (miljøvariabler)
-firebase_api_key = os.getenv("FIREBASE_API_KEY")
+# Firebase-konfigurasjon hentet fra Streamlit Secrets
+firebase_api_key = st.secrets.get("FIREBASE_API_KEY")
 
 # Test: Sjekk om miljøvariabler lastes riktig
 if firebase_api_key:
-    st.success("API-nøkkelen ble lastet inn riktig.")
+    st.success("API-nøkkelen ble lastet inn riktig fra Streamlit Secrets.")
 else:
-    st.error("API-nøkkelen ble ikke lastet inn. Sjekk GitHub Secrets og prøv igjen.")
+    st.error("API-nøkkelen ble ikke lastet inn. Sjekk Streamlit Secrets og prøv igjen.")
     st.stop()
 
 firebaseConfig = {
     "apiKey": firebase_api_key,
-    "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
-    "databaseURL": os.getenv("FIREBASE_DATABASE_URL"),
-    "projectId": os.getenv("FIREBASE_PROJECT_ID"),
-    "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
-    "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
-    "appId": os.getenv("FIREBASE_APP_ID"),
-    "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID")
+    "authDomain": st.secrets.get("FIREBASE_AUTH_DOMAIN"),
+    "databaseURL": st.secrets.get("FIREBASE_DATABASE_URL"),
+    "projectId": st.secrets.get("FIREBASE_PROJECT_ID"),
+    "storageBucket": st.secrets.get("FIREBASE_STORAGE_BUCKET"),
+    "messagingSenderId": st.secrets.get("FIREBASE_MESSAGING_SENDER_ID"),
+    "appId": st.secrets.get("FIREBASE_APP_ID"),
+    "measurementId": st.secrets.get("FIREBASE_MEASUREMENT_ID")
 }
 
 # Initialiser Firebase
