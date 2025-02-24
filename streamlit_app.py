@@ -137,6 +137,9 @@ else:
         # Korriger telefonnumrene
         df['Telefon'] = df['Telefon'].apply(korriger_telefonnummer)
 
+        # Fjern rader uten telefonnummer
+        df = df[df['Telefon'].notna()]
+
         st.success('Søket og korrigeringen er ferdig!')
         st.write("## Oppdatert data:")
         st.dataframe(df)
