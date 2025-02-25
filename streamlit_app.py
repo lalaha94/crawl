@@ -116,7 +116,7 @@ else:
             st.warning("Maksimalt 400 søk tillatt. De første 400 oppføringene er valgt.")
 
         # Lag søketekst
-        df['søk'] = df[['Eier Fornavn', 'Eier Etternavn', 'Eier Postnummer']].apply(query, axis=1)
+        df['søk'] = df[['Eier Fornavn', 'Eier Postnummer']].apply(query, axis=1)
 
         # Hent telefonnummer med statusindikator
         with st.spinner('Søker etter telefonnumre, vennligst vent...'):
